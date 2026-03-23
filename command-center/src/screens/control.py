@@ -44,7 +44,7 @@ class ControlScreen(Screen):
     countdown: reactive[int] = reactive(0)
     timer: Timer | None = None
     sender: ESP32BTSender | None = None
-    uploadServer: Esp32TcpServer | None = None
+    auto_running: bool = False
 
     def compose(self) -> ComposeResult:
         with Vertical():
@@ -71,6 +71,8 @@ class ControlScreen(Screen):
                     yield Button("Sync", id="control-sync")
                     yield Button("Download", id="control-upload")
                     yield Button("Upload", id="control-load")
+                    yield Button("Auto pilot", id="control-auto-pilot")
+                    yield Button("Seek", id="control-seek", classes="danger-buttons")
                 with Horizontal():
                     yield Button("R", id="control-r")
                     yield Button("G", id="control-g")
@@ -110,10 +112,10 @@ class ControlScreen(Screen):
         yield Footer()
 
     async def init_server(self):
-        uploadServer = Esp32TcpServer(
+        upload_server = Esp32TcpServer(
             screen_ref=self.screen,
             dancer_status=self.app.dancer_status,
-            act_fcn=self.update_connection_status,
+            act_fcn=self.update_connection_status_wifi,
             control_paths_list=[
                 "../lighttable/control_" + str(i) + ".dat"
                 for i in range(0, 27)
@@ -126,7 +128,7 @@ class ControlScreen(Screen):
             ],
             port=3333,
         )
-        await uploadServer.start()
+        await upload_server.start()
 
     def start_server_thread(self):
         loop = asyncio.new_event_loop()
@@ -168,6 +170,14 @@ class ControlScreen(Screen):
         ) and self.timer:
             self.timer.stop()
             self.countdown = 0
+        elif event.button.id == "control-auto-pilot":
+            if self.auto_running == True:
+                self.notify("Killing auto pilot thread...")
+                self.auto_running = False
+            else:
+                self.auto_running = True
+                auto_thread = threading.Thread(target=self.auto_pilot, daemon=True)
+                auto_thread.start()
 
     def on_input_changed(self, event: Input.Changed) -> None:
         value = event.input.value
@@ -227,13 +237,13 @@ class ControlScreen(Screen):
             )
         self.refresh()
 
-    def update_connection_status(self) -> None:  # TODO: Test this
+    def update_connection_status(self, auto=False) -> None:  # TODO: Test this
         if not self.dancer_table_initialized and self.app.dancer_status:
             self.init_dancer_table()
             self.dancer_table_initialized = True
             return
         try:
-            self.sender.trigger_check([])
+            self.sender.trigger_check([], report=not auto)
             time.sleep(2)  # Wait for ESP32 to scan
             connection_result = self.sender.get_latest_report()
             # self.notify(str(connection_result["payload"]))
@@ -257,7 +267,8 @@ class ControlScreen(Screen):
             #     }
             # }
         except:
-            self.notify("Can't get connection report", severity="error")
+            if auto == False:
+                self.notify("Can't get connection report", severity="error")
             return
 
         for name, dancer in self.app.dancer_status.items():
@@ -266,11 +277,16 @@ class ControlScreen(Screen):
             self.app.dancer_status[name].response = ""
 
         for item in connection_result["payload"]["found_devices"]:
+            if item["target_id"] == 0 or item["target_id"] > 27:
+                continue
             target_id = item["target_id"]
             cmd_id = item["cmd_id"]
             cmd_type = item["cmd_type"]
             target_delay = item["target_delay"]
             state = item["state"]
+            if state == "READY" and self.auto_running == True:
+                self.notify("Unexpected dancer reset occured!", severity="error")
+                self.auto_running = False
             # timestamp = item["timestamp"]
             self.app.dancer_status[DANCER_LIST[target_id][0]].interface = "BLE"
             self.app.dancer_status[DANCER_LIST[target_id][0]].wifi_info.connected = True
@@ -278,6 +294,33 @@ class ControlScreen(Screen):
                 DANCER_LIST[target_id][0]
             ].response = f"State: {state}, Type: {cmd_type}, CID: {cmd_id}, Target Delay: {target_delay}"
 
+        new_dancer_status: DancerStatus = self.app.dancer_status
+        for name, dancer in new_dancer_status.items():
+            try:
+                self.table.update_cell(
+                    name,
+                    "Name",
+                    f"[#00ff00]{name}[/]"
+                    if dancer.ethernet_info.connected or dancer.wifi_info.connected
+                    else f"[#ff0000]{name}[/]",
+                )
+                self.table.update_cell(
+                    name,
+                    "Interface",
+                    dancer.interface
+                    if dancer.ethernet_info.connected or dancer.wifi_info.connected
+                    else "none",
+                )
+                self.table.update_cell(name, "Response", dancer.response)
+            except:
+                continue
+        self.table.refresh_column(0)
+        self.table.refresh_column(2)
+        self.table.refresh_column(3)
+        if auto == False:
+            self.notify("Updated connection status")
+
+    def update_connection_status_wifi(self) -> None:  # TODO: Test this
         new_dancer_status: DancerStatus = self.app.dancer_status
         for name, dancer in new_dancer_status.items():
             try:
@@ -363,3 +406,26 @@ class ControlScreen(Screen):
         else:
             if self.timer:
                 self.timer.stop()
+
+    def auto_pilot(self) -> None:
+        self.notify(f"Auto pilot thread started")
+        try:
+            while self.auto_running == True:
+                self.update_connection_status(auto=True)
+                time.sleep(2)
+                # control_handler(
+                #     "control-seek",
+                #     [
+                #         dancer.name
+                #         for dancer in self.app.dancer_status.values()
+                #     ],
+                #     self.screen,
+                #     self.sender,
+                #     False
+                # )
+                # time.sleep(5)
+            self.auto_running == False
+            self.notify(f"Auto pilot thread terminated successfully")
+        except Exception as e:
+            self.auto_running == False
+            self.notify(f"Auto pilot thread terminated unexpectedly: {e}")

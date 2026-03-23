@@ -1,6 +1,6 @@
 BT_SENDER_PORT = "/dev/tty.usbserial-0001"
 
-MUSIC_FILE_PATH = "../files/music/0317.wav"
+MUSIC_FILE_PATH = "../files/music/0322.wav"
 
 DANCER_LIST = [
     ("all", "none"),
