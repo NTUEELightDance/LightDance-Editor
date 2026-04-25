@@ -4,6 +4,8 @@ mod check_token;
 mod control_dat;
 mod export_data;
 mod frame_dat;
+mod get_dancer_fiber_data;
+mod get_dancer_led_data;
 mod login;
 mod logout;
 mod ping;
@@ -30,5 +32,13 @@ pub fn build_api_routes() -> Router {
         .route("/uploadData", post(upload_data::upload_data))
         .route("/testFrameDat", get(frame_dat::test_frame_dat))
         .route("/testControlDat", get(control_dat::test_control_dat))
+        .route(
+            "getDancerLEDData",
+            post(get_dancer_led_data::get_dancer_led_data),
+        )
+        .route(
+            "getDancerFiberData",
+            post(get_dancer_fiber_data::get_dancer_fiber_data),
+        )
         .layer(DefaultBodyLimit::max(256 * 1024 * 1024))
 }

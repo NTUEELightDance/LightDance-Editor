@@ -1,23 +1,53 @@
-use std::collections::{HashMap, HashSet};
+use crate::global;
+use crate::utils::vector::partition_by_field;
 
 use axum::{
-    body::Bytes,
     http::{HeaderMap, HeaderValue, StatusCode},
     response::Json,
 };
 use itertools::Itertools;
-
-use crate::{global, utils::vector::partition_by_field};
-
-use super::{
-    types::{GetControlDatQuery, GetDataFailedResponse, LEDPart},
-    utils::{alpha, gradient_to_rgb_float, interpolate_gradient, write_little_endian, IntoResult},
+use serde::{Deserialize, Serialize};
+use std::iter::FromIterator;
+use std::{
+    collections::{HashMap, HashSet},
+    vec,
 };
+
+use super::utils::{gradient_to_rgb_float, interpolate_gradient, IntoResult};
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct LEDPart {
+    pub id: i32,
+    pub len: i32,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Status {
+    start: i32,
+    status: Vec<[i32; 4]>,
+    fade: bool,
+}
+
+pub type GetDataResponse = HashMap<String, Vec<Status>>;
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct GetDataFailedResponse {
+    err: String,
+}
+
+#[derive(Debug)]
+struct Part {
+    control_id: i32,
+    r#type: String,
+    length: Option<i32>,
+    effect_id: Option<i32>,
+    start: i32,
+    fade: bool,
+}
 
 type Color = [i32; 3];
 type LEDStatus = [i32; 4];
 
-const VERSION: [u8; 2] = [1, 2];
 const DEFAULT_COLOR: Color = [0, 0, 0];
 
 #[derive(Debug, Default)]
@@ -31,36 +61,41 @@ struct FrameData {
     // id: i32,
     start_time: u32,
     fade: u8,
-    // (part_id, color)
-    of_grb_data: HashMap<i32, [i32; 3]>,
     // (part_id, color[])
-    led_grb_data: HashMap<i32, Vec<[i32; 3]>>,
-    checksum: u32,
+    led_grb_data: HashMap<i32, Vec<[i32; 4]>>,
+    name_id_map: HashMap<i32, String>,
 }
 
-fn write_checksum(frame: &mut FrameData) {
-    let mut checksum: u32 = 0;
-    for num in frame.start_time.to_le_bytes() {
-        checksum = checksum.wrapping_add(num as u32);
-    }
+#[derive(Debug, Deserialize, Serialize)]
+struct GetLEDDataQueryLEDPart {
+    id: i32,
+    len: i32,
+}
 
-    checksum = checksum.wrapping_add(frame.fade as u32);
+#[derive(Debug, Deserialize, Serialize)]
+pub struct GetLEDDataQuery {
+    dancer: String,
+    #[serde(rename = "LEDPARTS")]
+    led_parts: HashMap<String, GetLEDDataQueryLEDPart>,
+    #[serde(rename = "LEDPARTS_MERGE")]
+    led_parts_merge: HashMap<String, Vec<String>>,
+}
 
-    for color in frame.of_grb_data.values() {
-        checksum = checksum.wrapping_add(color[0] as u32);
-        checksum = checksum.wrapping_add(color[1] as u32);
-        checksum = checksum.wrapping_add(color[2] as u32);
-    }
-
-    for color_vec in frame.led_grb_data.values() {
-        for color in color_vec {
-            checksum = checksum.wrapping_add(color[0] as u32);
-            checksum = checksum.wrapping_add(color[1] as u32);
-            checksum = checksum.wrapping_add(color[2] as u32);
+impl<R, E> IntoResult<R, (StatusCode, Json<GetDataFailedResponse>)> for Result<R, E>
+where
+    E: std::string::ToString,
+{
+    fn into_result(self) -> Result<R, (StatusCode, Json<GetDataFailedResponse>)> {
+        match self {
+            Ok(ok) => Ok(ok),
+            Err(err) => Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(GetDataFailedResponse {
+                    err: err.to_string(),
+                }),
+            )),
         }
     }
-
-    frame.checksum = checksum;
 }
 
 fn interpolate_no_effect_leds(
@@ -97,42 +132,17 @@ fn interpolate_no_effect_leds(
     }
 }
 
-fn interpolate_no_effect_of(
-    frames: &mut [FrameData],
-    intervals: &HashMap<i32, Vec<(usize, usize)>>,
-) {
-    for (part_id, part_intervals) in intervals {
-        for interval in part_intervals {
-            let left_color = *frames[interval.0].of_grb_data.get(part_id).unwrap();
-            let right_color = *frames[interval.1].of_grb_data.get(part_id).unwrap();
-            let len = interval.1 - interval.0;
-
-            for i in 0..len {
-                *frames[interval.0 + i].of_grb_data.get_mut(part_id).unwrap() = [
-                    (left_color[0] * (len - i) as i32 + right_color[0] * i as i32) / len as i32,
-                    (left_color[1] * (len - i) as i32 + right_color[1] * i as i32) / len as i32,
-                    (left_color[2] * (len - i) as i32 + right_color[2] * i as i32) / len as i32,
-                ]
-            }
-        }
-    }
-}
-
-pub async fn frame_dat(
-    query: Json<GetControlDatQuery>,
-) -> Result<(StatusCode, (HeaderMap, Bytes)), (StatusCode, Json<GetDataFailedResponse>)> {
-    let mut response: Vec<u8> = Vec::new();
-    for v in VERSION {
-        response.push(v);
-    }
-
+pub async fn get_dancer_led_data(
+    query: Json<GetLEDDataQuery>,
+) -> Result<
+    (StatusCode, (HeaderMap, Json<GetDataResponse>)),
+    (StatusCode, Json<GetDataFailedResponse>),
+> {
     let clients = global::clients::get();
     let mysql_pool = clients.mysql_pool();
 
-    let GetControlDatQuery {
-        dancer,
-        of_parts,
-        led_parts,
+    let GetLEDDataQuery {
+        dancer, led_parts, ..
     } = query.0;
 
     let colors = sqlx::query!(
@@ -151,8 +161,6 @@ pub async fn frame_dat(
             .iter()
             .map(|color| (color.id, [color.r, color.g, color.b])),
     );
-
-    let of_filter: HashSet<String> = HashSet::from_iter(of_parts.iter().map(|part| part.0.clone()));
 
     let led_filter: HashSet<String> =
         HashSet::from_iter(led_parts.iter().map(|part| part.0.clone()));
@@ -178,8 +186,6 @@ pub async fn frame_dat(
     })?
     .id;
 
-    let mut of_parts = Vec::from_iter(of_parts.into_iter());
-    of_parts.sort_by_key(|part| part.1);
     let mut led_parts = Vec::from_iter(led_parts.into_iter());
     led_parts.sort_by_key(|part| part.1.id);
 
@@ -218,65 +224,6 @@ pub async fn frame_dat(
             )
         })
         .collect_vec();
-
-    let of_data = sqlx::query!(
-        r#"
-            SELECT
-                Part.id as "part_id",
-                Part.name as "part_name",
-                ControlFrame.id as "contorl_frame_id",
-                ControlData.color_id as "color_id",
-                ControlData.alpha
-            FROM Dancer
-            INNER JOIN Model
-                ON Model.id = Dancer.model_id
-            INNER JOIN Part
-                ON Part.model_id = Model.id
-            INNER JOIN ControlData
-                ON ControlData.part_id = Part.id AND
-                ControlData.dancer_id = Dancer.id
-            INNER JOIN ControlFrame
-                ON ControlFrame.id = ControlData.frame_id
-            WHERE Dancer.id = ? AND
-                Part.type = 'FIBER' AND
-                ControlData.type != 'NO_EFFECT'
-            ORDER BY ControlFrame.start ASC;
-        "#,
-        dancer_id
-    )
-    .fetch_all(mysql_pool)
-    .await
-    .into_result()?
-    .into_iter()
-    .filter(|data| of_filter.contains(&data.part_name))
-    .collect_vec();
-
-    let of_parts_ids: HashMap<String, i32> = HashMap::from_iter(
-        of_data
-            .iter()
-            .map(|part| (part.part_name.clone(), part.part_id)),
-    );
-
-    let of_parts: Vec<(String, i32)> = Vec::from_iter(
-        of_parts
-            .into_iter()
-            .map(|part| (part.0.clone(), *of_parts_ids.get(&part.0).unwrap())),
-    );
-
-    // ((frame_id, part_id), color)
-    // TODO: error handling for the code below
-    let of_data_map: HashMap<(i32, i32), LEDStatus> =
-        HashMap::from_iter(of_data.iter().map(|data| {
-            let color = match data.color_id {
-                Some(id) => color_map.get(&id).unwrap_or(&[0, 0, 0]),
-                None => &DEFAULT_COLOR,
-            };
-
-            (
-                (data.contorl_frame_id, data.part_id),
-                [color[0], color[1], color[2], data.alpha.unwrap_or(255)],
-            )
-        }));
 
     // (id, color[])
     let mut effects_map: HashMap<i32, Effect> = HashMap::new();
@@ -485,8 +432,6 @@ pub async fn frame_dat(
     // ((frame_id, part_id), [[l, r)])
     let mut led_no_effect_intervals: HashMap<i32, Vec<(usize, usize)>> = HashMap::new();
     let mut led_no_effect_intervals_left: HashMap<i32, i32> = HashMap::new();
-    let mut of_no_effect_intervals: HashMap<i32, Vec<(usize, usize)>> = HashMap::new();
-    let mut of_no_effect_intervals_left: HashMap<i32, i32> = HashMap::new();
     let mut no_effect_parts: HashSet<(i32, i32)> = HashSet::new();
 
     for (i, frame) in control_frames.iter().enumerate() {
@@ -509,49 +454,13 @@ pub async fn frame_dat(
             }
         }
 
-        // (part_id, color)
-        let mut of: HashMap<i32, Color> = HashMap::new();
-
-        for (_, of_part_id) in &of_parts {
-            let color = if no_effect_parts.contains(&(frame_id, *of_part_id)) {
-                *frames
-                    .last()
-                    .ok_or("first frame can't be no effect")
-                    .into_result()?
-                    .of_grb_data
-                    .get(of_part_id)
-                    .unwrap()
-            } else {
-                alpha(
-                    of_data_map.get(&(frame_id, *of_part_id)).unwrap(),
-                    // .unwrap_or(&[0, 0, 0, 0]),
-                )
-            };
-
-            of.insert(*of_part_id, color);
-
-            if no_effect_parts.contains(&(frame_id, *of_part_id)) && fade == 1 {
-                if *of_no_effect_intervals_left.entry(*of_part_id).or_insert(-1) == -1 {
-                    *of_no_effect_intervals_left.get_mut(of_part_id).unwrap() = i as i32;
-                }
-            } else {
-                let left = of_no_effect_intervals_left.entry(*of_part_id).or_insert(-1);
-
-                if *left != -1 {
-                    of_no_effect_intervals
-                        .entry(*of_part_id)
-                        .or_default()
-                        .push(((*left - 1) as usize, i));
-
-                    *left = -1;
-                }
-            }
-        }
-
         // (part_id, color[])
-        let mut led: HashMap<i32, Vec<Color>> = HashMap::new();
+        let mut led: HashMap<i32, Vec<LEDStatus>> = HashMap::new();
 
-        for (_, led_part) in &led_parts {
+        let mut part_name_id_map: HashMap<i32, String> = HashMap::new();
+
+        for (part_name, led_part) in &led_parts {
+            part_name_id_map.insert(led_part.id, part_name.clone());
             let color = if no_effect_parts.contains(&(frame_id, led_part.id)) {
                 frames
                     .last()
@@ -564,15 +473,14 @@ pub async fn frame_dat(
             } else if no_change_parts.contains(&(frame_id, led_part.id)) {
                 match frames.last() {
                     Some(frame) => frame.led_grb_data.get(&led_part.id).unwrap().clone(),
-                    None => vec![[0, 0, 0]; led_part.len as usize],
+                    None => vec![[0, 0, 0, 0]; led_part.len as usize],
                 }
             } else {
                 led_data
                     .get(&(frame_id, led_part.id))
                     .unwrap_or(&&vec![[0, 0, 0, 0]; led_part.len as usize])
-                    .iter()
-                    .map(alpha)
-                    .collect_vec()
+                    .to_owned()
+                    .to_owned()
             };
 
             led.insert(led_part.id, color);
@@ -604,78 +512,31 @@ pub async fn frame_dat(
         let frame_data = FrameData {
             // id: frame_id,
             start_time,
-            of_grb_data: of,
             led_grb_data: led,
+            name_id_map: part_name_id_map,
             fade,
-            checksum: 0_u32,
         };
 
         frames.push(frame_data);
     }
 
-    interpolate_no_effect_of(&mut frames, &of_no_effect_intervals);
     interpolate_no_effect_leds(&mut frames, &led_no_effect_intervals);
 
-    for frame in &mut frames {
-        write_checksum(frame);
-    }
+    let mut response: GetDataResponse = HashMap::new();
 
-    for frame in &frames {
-        write_little_endian(&frame.start_time, &mut response);
-        response.push(frame.fade);
-        for (_, of_part_id) in &of_parts {
-            let color = frame.of_grb_data.get(of_part_id).unwrap();
-            response.push(color[1] as u8);
-            response.push(color[0] as u8);
-            response.push(color[2] as u8);
-        }
-
-        for (_, led_part) in &led_parts {
-            let colors = frame.led_grb_data.get(&led_part.id).unwrap();
-            if led_part.len as usize != colors.len() {
-                return Err((
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    Json::<GetDataFailedResponse>(GetDataFailedResponse {
-                        err: format!(
-                            "LED part and color have different length at part_id: {}",
-                            led_part.id
-                        ),
-                    }),
-                ));
-            }
-            colors.iter().for_each(|color| {
-                response.push(color[1] as u8);
-                response.push(color[0] as u8);
-                response.push(color[2] as u8);
+    for frame in frames {
+        for (id, status) in frame.led_grb_data {
+            let part_name = frame.name_id_map.get(&id).unwrap().clone();
+            response.entry(part_name).or_default().push(Status {
+                start: frame.start_time as i32,
+                status,
+                fade: frame.fade == 1,
             });
         }
-
-        write_little_endian(&frame.checksum, &mut response);
     }
 
     let mut headers = HeaderMap::new();
-    headers.insert(
-        "content-type",
-        HeaderValue::from_static("application/octect-stream"),
-    );
+    headers.insert("content-type", HeaderValue::from_static("application/json"));
 
-    let response_bytes = Bytes::from(response);
-
-    Ok((StatusCode::OK, (headers, response_bytes)))
-}
-
-pub async fn test_frame_dat(
-) -> Result<(StatusCode, (HeaderMap, Bytes)), (StatusCode, Json<GetDataFailedResponse>)> {
-    let dancer = "2_feng".to_string();
-    let mut of_parts = HashMap::new();
-    let mut led_parts: HashMap<String, LEDPart> = HashMap::new();
-    of_parts.insert("cloak_out".to_string(), 0);
-    led_parts.insert("mask_LED".to_string(), LEDPart { id: 0, len: 28 });
-
-    frame_dat(Json::from(GetControlDatQuery {
-        dancer,
-        of_parts,
-        led_parts,
-    }))
-    .await
+    Ok((StatusCode::OK, (headers, Json(response))))
 }
