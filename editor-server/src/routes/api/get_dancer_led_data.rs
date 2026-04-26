@@ -35,16 +35,6 @@ pub struct GetDataFailedResponse {
     err: String,
 }
 
-#[derive(Debug)]
-struct Part {
-    control_id: i32,
-    r#type: String,
-    length: Option<i32>,
-    effect_id: Option<i32>,
-    start: i32,
-    fade: bool,
-}
-
 type Color = [i32; 3];
 type LEDStatus = [i32; 4];
 
