@@ -54,6 +54,7 @@ struct FrameData {
     // (part_id, color[])
     led_grb_data: HashMap<i32, Vec<[i32; 4]>>,
     name_id_map: HashMap<i32, String>,
+    has_effect: bool,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -438,9 +439,18 @@ pub async fn get_dancer_led_data(
             }
         };
 
+        // TODO: Actually we can skip the following steps (perhaps even more)
+        // for NO_EFFECT frames
+        // Pls be careful
+        let mut frame_has_effect = false;
         for control_data in frame {
             if control_data.r#type == "NO_EFFECT" {
                 no_effect_parts.insert((frame_id, control_data.part_id));
+            } else {
+                // This is not needed if it is guaranteed that
+                // NO_EFFECT cannot be true for some but not
+                // all parts of a dancer
+                frame_has_effect = true;
             }
         }
 
@@ -505,6 +515,7 @@ pub async fn get_dancer_led_data(
             led_grb_data: led,
             name_id_map: part_name_id_map,
             fade,
+            has_effect: frame_has_effect,
         };
 
         frames.push(frame_data);
@@ -515,13 +526,15 @@ pub async fn get_dancer_led_data(
     let mut response: GetDataResponse = HashMap::new();
 
     for frame in frames {
-        for (id, status) in frame.led_grb_data {
-            let part_name = frame.name_id_map.get(&id).unwrap().clone();
-            response.entry(part_name).or_default().push(Status {
-                start: frame.start_time as i32,
-                status,
-                fade: frame.fade == 1,
-            });
+        if frame.has_effect {
+            for (id, status) in frame.led_grb_data {
+                let part_name = frame.name_id_map.get(&id).unwrap().clone();
+                response.entry(part_name).or_default().push(Status {
+                    start: frame.start_time as i32,
+                    status,
+                    fade: frame.fade == 1,
+                });
+            }
         }
     }
 
