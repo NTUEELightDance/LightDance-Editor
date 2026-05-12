@@ -33,11 +33,11 @@ pub fn build_api_routes() -> Router {
         .route("/testFrameDat", get(frame_dat::test_frame_dat))
         .route("/testControlDat", get(control_dat::test_control_dat))
         .route(
-            "getDancerLEDData",
+            "/getDancerLEDData",
             post(get_dancer_led_data::get_dancer_led_data),
         )
         .route(
-            "getDancerFiberData",
+            "/getDancerFiberData",
             post(get_dancer_fiber_data::get_dancer_fiber_data),
         )
         .layer(DefaultBodyLimit::max(256 * 1024 * 1024))
