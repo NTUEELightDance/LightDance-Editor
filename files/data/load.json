@@ -1,115 +1,23 @@
 {
-  "Music": "/music/2026LightDance.mp3",
+  "Music": "/music/summerLD.mp3",
   "Waveform": "/data/waveform.json",
   "Beat": "/data/beat.csv",
   "DancerMap": {
-    "0_liao": {
+    "0_joshua": {
       "url": "/asset/models/vampire_king.glb",
       "modelName": "vampire_king"
     },
-    "1_lin": {
-      "url": "/asset/models/vampire_king.glb",
-      "modelName": "vampire_king"
-    },
-    "2_feng": {
-      "url": "/asset/models/jane.glb",
-      "modelName": "jane"
-    },
-    "3_chen": {
-      "url": "/asset/models/jane.glb",
-      "modelName": "jane"
-    },
-    "4_roy": {
+    "1_kosu": {
       "url": "/asset/models/vampire.glb",
       "modelName": "vampire"
     },
-    "5_chiu": {
-      "url": "/asset/models/vampire.glb",
-      "modelName": "vampire"
-    },
-    "6_su": {
+    "2_yaz": {
       "url": "/asset/models/rob.glb",
       "modelName": "rob"
     },
-    "7_li": {
-      "url": "/asset/models/rob.glb",
-      "modelName": "rob"
-    },
-    "8_hsieh": {
+    "3_eric": {
       "url": "/asset/models/hunter.glb",
       "modelName": "hunter"
-    },
-    "9_yang": {
-      "url": "/asset/models/hunter.glb",
-      "modelName": "hunter"
-    },
-    "10_tsai": {
-      "url": "/asset/models/hunter.glb",
-      "modelName": "hunter"
-    },
-    "11_luo": {
-      "url": "/asset/models/hunter.glb",
-      "modelName": "hunter"
-    },
-    "12_coffin": {
-      "url": "/asset/models/props/coffin.glb",
-      "modelName": "coffin"
-    },
-    "13_altar_top1": {
-      "url": "/asset/models/props/altar_top.glb",
-      "modelName": "altar_top"
-    },
-    "14_altar_bottom1": {
-      "url": "/asset/models/props/altar_bottom.glb",
-      "modelName": "altar_bottom"
-    },
-    "15_altar_top2": {
-      "url": "/asset/models/props/altar_top.glb",
-      "modelName": "altar_top"
-    },
-    "16_altar_bottom2": {
-      "url": "/asset/models/props/altar_bottom.glb",
-      "modelName": "altar_bottom"
-    },
-    "17_cross": {
-      "url": "/asset/models/props/cross.glb",
-      "modelName": "cross"
-    },
-    "18_gem": {
-      "url": "/asset/models/props/gem.glb",
-      "modelName": "gem"
-    },
-    "19_pole": {
-      "url": "/asset/models/props/pole.glb",
-      "modelName": "pole"
-    },
-    "20_fireplace": {
-      "url": "/asset/models/props/fireplace.glb",
-      "modelName": "fireplace"
-    },
-    "21_axe1": {
-      "url": "/asset/models/props/axe.glb",
-      "modelName": "axe"
-    },
-    "22_axe2": {
-      "url": "/asset/models/props/axe.glb",
-      "modelName": "axe"
-    },
-    "23_balcony": {
-      "url": "/asset/models/props/balcony.glb",
-      "modelName": "balcony"
-    },
-    "24_gun": {
-      "url": "/asset/models/props/gun.glb",
-      "modelName": "gun"
-    },
-    "25_staff1": {
-      "url": "/asset/models/props/staff.glb",
-      "modelName": "staff"
-    },
-    "26_staff2": {
-      "url": "/asset/models/props/staff.glb",
-      "modelName": "staff"
     }
   },
   "Config": {

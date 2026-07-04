@@ -1,88 +1,19 @@
 {
   "Beat": "5ec356af98382797ef768d84fe17a16934284511c5221b64c27e452c701d0f48",
   "Music": "19806d7b1a921485297b86ad699b329dfb46fa2e605f44fb0b13f98c8a42bb9c",
-  "Waveform": "117ee034f8a4692ac7d6534ec77c4ddf6f7aa3a7b04a518dcc75513eea5b25dd",
+  "Waveform": "6ac855190e1a3d2dc399fe72d2bb910c28cfb772ff80d1239ce9c0dcdb1a3176",
   "DancerMap": {
-    "0_liao": {
+    "0_joshua": {
       "url": "743bb6f8ced1980289a71c9dbd925f89e6630356a7a54a6bd828c799da2e1556"
     },
-    "1_lin": {
-      "url": "743bb6f8ced1980289a71c9dbd925f89e6630356a7a54a6bd828c799da2e1556"
-    },
-    "2_feng": {
-      "url": "829d3e4e6e2b9f9ab94e1de373671bcfd754ed2da835838ecde9a5126c539258"
-    },
-    "3_chen": {
-      "url": "829d3e4e6e2b9f9ab94e1de373671bcfd754ed2da835838ecde9a5126c539258"
-    },
-    "4_roy": {
+    "1_kosu": {
       "url": "f24a998e6ce78e50fb9dd0e64ad48f077cf6ee23c3a1e359b4a09766a6953100"
     },
-    "5_chiu": {
-      "url": "f24a998e6ce78e50fb9dd0e64ad48f077cf6ee23c3a1e359b4a09766a6953100"
-    },
-    "6_su": {
+    "2_yaz": {
       "url": "203c3b7671d11894809cbc8adfcdcf59f2c0ef8b29a3487dfe6dbcb990550257"
     },
-    "7_li": {
-      "url": "203c3b7671d11894809cbc8adfcdcf59f2c0ef8b29a3487dfe6dbcb990550257"
-    },
-    "8_hsieh": {
+    "3_eric": {
       "url": "5ec591eafc0e30f3973e9b3b59346161936a92a481374ca3b05af57450dfd76e"
-    },
-    "9_yang": {
-      "url": "5ec591eafc0e30f3973e9b3b59346161936a92a481374ca3b05af57450dfd76e"
-    },
-    "10_tsai": {
-      "url": "5ec591eafc0e30f3973e9b3b59346161936a92a481374ca3b05af57450dfd76e"
-    },
-    "11_luo": {
-      "url": "5ec591eafc0e30f3973e9b3b59346161936a92a481374ca3b05af57450dfd76e"
-    },
-    "12_coffin": {
-      "url": "0e2a60d2dd2a6792e1bdafa2f0e4deb413dd77ee28600a896df261f01bed201b"
-    },
-    "13_altar_top1": {
-      "url": "be08aab1d77a7ed48a796fce3e88f0b75ae81e7974073c8dfb52f9e72683fa86"
-    },
-    "14_altar_bottom1": {
-      "url": "540a010e6e7d20f5773f2c93dc798fd9d42cbfd5685c5c8b15eee6ad5d1464f8"
-    },
-    "15_altar_top2": {
-      "url": "be08aab1d77a7ed48a796fce3e88f0b75ae81e7974073c8dfb52f9e72683fa86"
-    },
-    "16_altar_bottom2": {
-      "url": "540a010e6e7d20f5773f2c93dc798fd9d42cbfd5685c5c8b15eee6ad5d1464f8"
-    },
-    "17_cross": {
-      "url": "f8a002982d67460ef6dbfac371172bb2faf9461c88a4f0e60b9626f97810694b"
-    },
-    "18_gem": {
-      "url": "698beb161cfe82f5fbf650703175e9b9f5c2f44363fae91b97ea1be643e5a9ab"
-    },
-    "19_pole": {
-      "url": "a71deb99519624b7162ea51c4cb9547c8dc6840992685eeb7e86335ad47b39bd"
-    },
-    "20_fireplace": {
-      "url": "1f42627989a5e4d1539b09f8d507c73dd5b30f2b896d37b0bba7411746bbd667"
-    },
-    "21_axe1": {
-      "url": "7040e93c31bcf959317ff11b43da658dbd78bf4528aa0e4060d84674d58b30a2"
-    },
-    "22_axe2": {
-      "url": "7040e93c31bcf959317ff11b43da658dbd78bf4528aa0e4060d84674d58b30a2"
-    },
-    "23_balcony": {
-      "url": "85491d5ecef32745f88e19c30ed4d5fc8f6f63b8c3437b99e4a16ed8f13be6bc"
-    },
-    "24_gun": {
-      "url": "b8abd9d5016ade8380daf162d3b9e501e04efc02b593aaaa5461b2f3785d5065"
-    },
-    "25_staff1": {
-      "url": "648903d423b88998639a3415bfd198b91ccb3551920608f1cbee511774bbc524"
-    },
-    "26_staff2": {
-      "url": "648903d423b88998639a3415bfd198b91ccb3551920608f1cbee511774bbc524"
     }
   }
 }
