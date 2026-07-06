@@ -1,5 +1,4 @@
 import json
-import os
 import time
 from collections.abc import Callable
 
@@ -7,12 +6,11 @@ import requests
 import websocket
 from textual.widgets import Log
 
-from ..config import DANCER_LIST, MODEL_PIN_MAP_TABLE
 from ..types.app import LightDanceAppType
-from ..utils.convert import update_dancer_status
 from .message import on_message
 
-HTTPS_URL = "https://lightdance-editor.ntuee.org/api/editor-server/"
+WS_URL = "ws://localhost:8082"
+HTTP_URL = "http://localhost:8082"
 
 
 class API:
@@ -23,85 +21,70 @@ class API:
     def set_app_ref(self, app: LightDanceAppType):
         self.app_ref = app
 
-    def get_dancers(self):
-        data = None
-        while not data:
-            data = {}
-            for dancer, type in DANCER_LIST:
-                if type == "none":
-                    continue
-                data[dancer] = {"dancer": dancer, **MODEL_PIN_MAP_TABLE[type]}
-        self.app_ref.dancer_status = update_dancer_status(self.app_ref.dancer_status)
+    def connect(self):
+        self.app_ref.notify(f"Connecting to {WS_URL}")
+        while True:
+            try:
+                self.ws = websocket.WebSocketApp(
+                    WS_URL,
+                    on_message=self.on_message,
+                    on_error=self.on_error,
+                    on_close=self.on_close,
+                    on_open=self.on_open,
+                )
+                self.ws.run_forever()
+                time.sleep(1)
+            except websocket.WebSocketException:
+                self.app_ref.notify("Connection error. Retrying...")
+                self.ws = None
+            except KeyboardInterrupt:
+                self.app_ref.notify("Exiting...")
+                break
+
+    def on_message(self, ws, message):
+        on_message(message, self.app_ref)
+
+    def on_error(self, ws, error):
+        print(f"Error: {error}")
+
+    def on_close(self, ws, close_status_code, close_msg):
+        self.app_ref.notify(
+            f"Connection closed with code {close_status_code}", severity="error"
+        )
+
+    def on_open(self, ws):
+        assert self.ws
+        self.app_ref.notify("Connection opened")
+        self.send(
+            {
+                "topic": "boardInfo",
+            }
+        )
 
     def get_pin_map(self):
         data = None
         while not data:
-            data = {}
-            for dancer, type in DANCER_LIST:
-                if type == "none":
-                    continue
-                data[dancer] = {"dancer": dancer, **MODEL_PIN_MAP_TABLE[type]}
+            try:
+                data = requests.get(f"{HTTP_URL}/pinmaptable").json()
+            except requests.RequestException:
+                self.app_ref.notify("Failed to get pin map", severity="error")
+                time.sleep(1)
         self.app_ref.notify("Pin map loaded")
         self.app_ref.pinmap = data
 
-    def download(self, dancers):
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-
-        for dancer_id in dancers:
-            payload = {
-                "dancer": DANCER_LIST[dancer_id][0],
-                "OFPARTS": MODEL_PIN_MAP_TABLE[DANCER_LIST[dancer_id][1]]["OFPARTS"],
-                "LEDPARTS": MODEL_PIN_MAP_TABLE[DANCER_LIST[dancer_id][1]]["LEDPARTS"],
-            }
-            # payload_json = json.dumps(payload)
-
-            # with open(current_dir + "/body.txt", "w") as f:
-            #     f.write(payload_json)
-
-            control_result_value = requests.post(
-                f"{HTTPS_URL}/controlDat", json=payload
+    def send(self, message: dict):
+        if self.ws is None:
+            self.app_ref.notify("Connection is not open")
+            return
+        self.ws.send(
+            json.dumps(
+                {
+                    **message,
+                    "from": "controlPanel",
+                    "statusCode": 0,
+                }
             )
-            frame_result_value = requests.post(f"{HTTPS_URL}/frameDat", json=payload)
-
-            if (
-                control_result_value.status_code != 200
-                or frame_result_value.status_code != 200
-            ):
-                self.app_ref.control_table.update_cell(
-                    DANCER_LIST[dancer_id][0],
-                    "Response",
-                    f"Failed to save file locally. Status code: {control_result_value.status_code}, {frame_result_value.status_code}.",
-                )
-                continue
-
-            files_to_save = [
-                (f"control_{dancer_id-1}.dat", control_result_value.content),
-                (f"frame_{dancer_id-1}.dat", frame_result_value.content),
-            ]
-
-            for file_name, data in files_to_save:
-                try:
-                    file_path = os.path.join(
-                        current_dir, "..", "..", "..", "lighttable", file_name
-                    )
-                    file_path = os.path.abspath(file_path)
-
-                    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-
-                    with open(file_path, "wb") as f:
-                        f.write(data)
-                    self.app_ref.control_table.update_cell(
-                        DANCER_LIST[dancer_id][0],
-                        "Response",
-                        f"Data saved locally to {file_path}",
-                    )
-
-                except Exception as e:
-                    self.app_ref.control_table.update_cell(
-                        DANCER_LIST[dancer_id][0],
-                        "Response",
-                        f"Failed to save file locally: {e}",
-                    )
+        )
 
 
 api = API()
