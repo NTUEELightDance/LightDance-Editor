@@ -5,530 +5,246 @@ import wave
 import pygame
 
 from ..api import api
-from ..config import MUSIC_FILE_PATH
+
+# from ..config import MUSIC_FILE_PATH
 from ..types.app import ControlScreenParamsType, ControlScreenType
 
+MUSIC_FILE_PATH = "../files/music/0523.wav"
 START_MUSIC_EVENT = pygame.USEREVENT + 1
 music_timer = None
-play_cmd = [None for i in range(27)]
+# play_cmd = [None for i in range(27)]
 time_stamp = None
+
+file_wav = wave.open(MUSIC_FILE_PATH)
+frequency = file_wav.getframerate()
+pygame.mixer.pre_init(frequency=frequency, size=-16, channels=2)
+pygame.init()
+pygame.mixer.init(frequency=frequency, size=-16, channels=2)
+# print(pygame.mixer.get_init())
+pygame.mixer.music.load(MUSIC_FILE_PATH)
 
 
 def play_music():
     pygame.mixer.music.play()
 
 
-def revive(screen_ref, sender, target_ids, auto):
-    try:
-        response = sender.send_burst(
-            cmd_input="PLAY",
-            delay_sec=1.0,
-            prep_led_sec=0.0,
-            target_ids=target_ids,
-            data=[0, 0, 0],
-            report=not auto
-            # retries=3,
-        )
-        for id in target_ids:
-            play_cmd[id - 1] = int(response["payload"]["command_id"])
-        if auto == False:
-            if response["statusCode"] == 0:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}"
-                )
-            else:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}",
-                    severity="error",
-                )
-            # screen_ref.notify("Seek")
-    except:
-        screen_ref.notify("Seek failed", severity="error")
-
-
 def control_handler(
-    id: str,
-    selected_dancers: list[str],
-    screen_ref: ControlScreenType,
-    sender,
-    auto: bool = False,
+    id: str, selected_dancers: list[str], screen_ref: ControlScreenType
 ):  # TODO
-    # sender = ESP32BTSender(port="dev/tty3")
     screen_vars: ControlScreenParamsType = screen_ref.local_vars
     global music_timer
-    global play_cmd
     global time_stamp
-    if id == "control-play":
-        time_stamp = time.time_ns() // 1000000 + screen_vars.delay * 1000
-        music_timer = threading.Timer(screen_vars.delay, play_music)
-        music_timer.start()
-        response = sender.send_burst(
-            cmd_input="PLAY",
-            delay_sec=screen_vars.delay,
-            prep_led_sec=10.0,
-            target_ids=[int(dancer.split("_")[0]) + 1 for dancer in selected_dancers],
-            data=[0, 0, 0],
-            report=not auto
-            # retries=3,
-        )
-        for dancer in selected_dancers:
-            play_cmd[int(dancer.split("_")[0])] = int(response["payload"]["command_id"])
-        if auto == False:
+    match id:
+        case "control-play":
+            timestamp = int(time.time() * 1000) + screen_vars.delay * 1000
+            music_timer = threading.Timer(screen_vars.delay, play_music)
+            music_timer.start()
+            api.send(
+                {
+                    "topic": "play",
+                    "payload": {
+                        "dancers": selected_dancers,
+                        "timestamp": timestamp,
+                        "start": screen_vars.start_time,
+                    },
+                }
+            )
             screen_ref.notify(
                 f"Play: delay={screen_vars.delay} / start time={screen_vars.start_time}"
             )
-            if response["statusCode"] == 0:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}"
-                )
-            else:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}",
-                    severity="error",
-                )
-    elif id == "control-pause":
-        response = sender.send_burst(
-            cmd_input="PAUSE",
-            delay_sec=1,
-            prep_led_sec=1,
-            target_ids=[int(dancer.split("_")[0]) + 1 for dancer in selected_dancers],
-            data=[0, 0, 0],
-            report=not auto
-            # retries=3,
-        )
-        screen_ref.notify("Pause")
-        if auto == False:
-            if response["statusCode"] == 0:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}"
-                )
-            else:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}",
-                    severity="error",
-                )
-    elif id == "control-stop":
-        # screen_ref.notify(str(play_cmd))
-        time_stamp = None
-        try:
+        case "control-pause":
+            api.send(
+                {
+                    "topic": "pause",
+                    "payload": {
+                        "dancers": selected_dancers,
+                    },
+                }
+            )
+            screen_ref.notify("Pause")
+        case "control-stop":
             if music_timer:
                 music_timer.cancel()
                 music_timer = None
             pygame.mixer.music.stop()
-            myCIDdict = {}
-            keys = []
-            for dancer in selected_dancers:
-                if play_cmd[int(dancer.split("_")[0])] is not None:
-                    if myCIDdict.get(play_cmd[int(dancer.split("_")[0])]) is None:
-                        keys.append(play_cmd[int(dancer.split("_")[0])])
-                        myCIDdict[play_cmd[int(dancer.split("_")[0])]] = [
-                            int(dancer.split("_")[0]) + 1
-                        ]
-                    else:
-                        myCIDdict[play_cmd[int(dancer.split("_")[0])]].append(
-                            int(dancer.split("_")[0]) + 1
-                        )
-
-            for key in keys:
-                response = sender.send_burst(
-                    cmd_input="CANCEL",
-                    delay_sec=2,
-                    prep_led_sec=1,
-                    target_ids=myCIDdict[key],
-                    data=[key, 0, 0],
-                    report=not auto
-                    # retries=3,
-                )
-                if response["statusCode"] == 0:
-                    for id in myCIDdict[key]:
-                        play_cmd[id - 1] = None
-                    if auto == False:
-                        screen_ref.notify(
-                            f"BTSender Response: {str(response['payload']['message'])}"
-                        )
-                else:
-                    if auto == False:
-                        screen_ref.notify(
-                            f"BTSender Response: {str(response['payload']['message'])}",
-                            severity="error",
-                        )
-            # if play_cmd is not None:
-            #     sender.send_burst(
-            #         cmd_input="CANCEL",
-            #         delay_sec=1,
-            #         prep_led_sec=1,
-            #         target_ids=[
-            #             int(dancer.split("_")[0]) + 1 for dancer in selected_dancers
-            #         ],
-            #         data=[play_cmd, 0, 0],
-            #         report=not auto
-            #         # retries=3,
-            #     )
-            #     play_cmd = None
-        except:
-            if auto == False:
-                screen_ref.notify("Nothing to stop!")
-        response = sender.send_burst(
-            cmd_input="STOP",
-            delay_sec=1,
-            prep_led_sec=1,
-            target_ids=[int(dancer.split("_")[0]) + 1 for dancer in selected_dancers],
-            data=[0, 0, 0],
-            report=not auto
-            # retries=3,
-        )
-        screen_ref.notify("Stop")
-        if auto == False:
-            if response["statusCode"] == 0:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}"
-                )
-            else:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}",
-                    severity="error",
-                )
-    elif id == "control-refresh":
-        response = sender.send_burst(
-            cmd_input="RESET",
-            delay_sec=1,
-            prep_led_sec=1,
-            target_ids=[int(dancer.split("_")[0]) + 1 for dancer in selected_dancers],
-            data=[0, 0, 0],
-            report=not auto
-            # retries=3,
-        )
-        if auto == False:
-            screen_ref.notify("Reset")
-    elif id == "control-sync":
-        if auto == False:
+            api.send(
+                {
+                    "topic": "stop",
+                    "payload": {
+                        "dancers": selected_dancers,
+                    },
+                }
+            )
+            screen_ref.notify("Stop")
+        case "control-refresh":
+            api.send(
+                {
+                    "topic": "boardInfo",
+                }
+            )
+            screen_ref.notify("Refresh")
+        case "control-sync":
+            api.send(
+                {
+                    "topic": "sync",
+                    "payload": {
+                        "dancers": selected_dancers,
+                    },
+                }
+            )
             screen_ref.notify("Sync")
-    elif id == "control-upload":
-        # api.send(
-        #     {
-        #         "topic": "upload",
-        #         "payload": {
-        #             "dancers": selected_dancers,
-        #         },
-        #     }
-        # )
-        api.download([int(dancer.split("_")[0]) + 1 for dancer in selected_dancers])
-        if auto == False:
-            screen_ref.notify("Download")
-    elif id == "control-load":
-        response = sender.send_burst(
-            cmd_input="UPLOAD",
-            delay_sec=1,
-            prep_led_sec=1,
-            target_ids=[int(dancer.split("_")[0]) + 1 for dancer in selected_dancers],
-            data=[0, 0, 0],
-            report=not auto
-            # retries=3,
-        )
-        if auto == False:
+        case "control-upload":
+            api.send(
+                {
+                    "topic": "upload",
+                    "payload": {
+                        "dancers": selected_dancers,
+                    },
+                }
+            )
             screen_ref.notify("Upload")
-            if response["statusCode"] == 0:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}"
-                )
-            else:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}",
-                    severity="error",
-                )
-    elif id == "control-r":
-        response = sender.send_burst(
-            cmd_input="TEST",
-            delay_sec=2,
-            prep_led_sec=1,
-            target_ids=[int(dancer.split("_")[0]) + 1 for dancer in selected_dancers],
-            data=[255, 0, 0],
-            report=not auto
-            # retries=3,
-        )
-        if auto == False:
+        case "control-load":
+            api.send(
+                {
+                    "topic": "load",
+                    "payload": {
+                        "dancers": selected_dancers,
+                    },
+                }
+            )
+            screen_ref.notify("Load")
+        case "control-r":
+            api.send(
+                {
+                    "topic": "red",
+                    "payload": {
+                        "dancers": selected_dancers,
+                    },
+                }
+            )
             screen_ref.notify("Red")
-            if response["statusCode"] == 0:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}"
-                )
-            else:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}",
-                    severity="error",
-                )
-    elif id == "control-g":
-        response = sender.send_burst(
-            cmd_input="TEST",
-            delay_sec=2,
-            prep_led_sec=1,
-            target_ids=[int(dancer.split("_")[0]) + 1 for dancer in selected_dancers],
-            data=[0, 255, 0],
-            report=not auto
-            # retries=3,
-        )
-        if auto == False:
+        case "control-g":
+            api.send(
+                {
+                    "topic": "green",
+                    "payload": {
+                        "dancers": selected_dancers,
+                    },
+                }
+            )
             screen_ref.notify("Green")
-            if response["statusCode"] == 0:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}"
-                )
-            else:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}",
-                    severity="error",
-                )
-    elif id == "control-b":
-        response = sender.send_burst(
-            cmd_input="TEST",
-            delay_sec=2,
-            prep_led_sec=1,
-            target_ids=[int(dancer.split("_")[0]) + 1 for dancer in selected_dancers],
-            data=[0, 0, 255],
-            report=not auto
-            # retries=3,
-        )
-        if auto == False:
+        case "control-b":
+            api.send(
+                {
+                    "topic": "blue",
+                    "payload": {
+                        "dancers": selected_dancers,
+                    },
+                }
+            )
             screen_ref.notify("Blue")
-            if response["statusCode"] == 0:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}"
-                )
-            else:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}",
-                    severity="error",
-                )
-    elif id == "control-rg":
-        response = sender.send_burst(
-            cmd_input="TEST",
-            delay_sec=2,
-            prep_led_sec=1,
-            target_ids=[int(dancer.split("_")[0]) + 1 for dancer in selected_dancers],
-            data=[255, 255, 0],
-            report=not auto
-            # retries=3,
-        )
-        if auto == False:
+        case "control-rg":
+            api.send(
+                {
+                    "topic": "yellow",
+                    "payload": {
+                        "dancers": selected_dancers,
+                    },
+                }
+            )
             screen_ref.notify("Yellow/RG")
-            if response["statusCode"] == 0:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}"
-                )
-            else:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}",
-                    severity="error",
-                )
-    elif id == "control-gb":
-        response = sender.send_burst(
-            cmd_input="TEST",
-            delay_sec=2,
-            prep_led_sec=1,
-            target_ids=[int(dancer.split("_")[0]) + 1 for dancer in selected_dancers],
-            data=[0, 255, 255],
-            report=not auto
-            # retries=3,
-        )
-        if auto == False:
+        case "control-gb":
+            api.send(
+                {
+                    "topic": "cyan",
+                    "payload": {
+                        "dancers": selected_dancers,
+                    },
+                }
+            )
             screen_ref.notify("Cyan/GB")
-            if response["statusCode"] == 0:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}"
-                )
-            else:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}",
-                    severity="error",
-                )
-    elif id == "control-rb":
-        response = sender.send_burst(
-            cmd_input="TEST",
-            delay_sec=2,
-            prep_led_sec=1,
-            target_ids=[int(dancer.split("_")[0]) + 1 for dancer in selected_dancers],
-            data=[255, 0, 255],
-            report=not auto
-            # retries=3,
-        )
-        if auto == False:
+        case "control-rb":
+            api.send(
+                {
+                    "topic": "magenta",
+                    "payload": {
+                        "dancers": selected_dancers,
+                    },
+                }
+            )
             screen_ref.notify("Magenta/RB")
-            if response["statusCode"] == 0:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}"
-                )
-            else:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}",
-                    severity="error",
-                )
-    elif id == "control-d":
-        response = sender.send_burst(
-            cmd_input="TEST",
-            delay_sec=2,
-            prep_led_sec=1,
-            target_ids=[int(dancer.split("_")[0]) + 1 for dancer in selected_dancers],
-            data=[0, 0, 0],
-            report=not auto
-            # retries=3,
-        )
-        if auto == False:
-            screen_ref.notify("Rainbow")
-            if response["statusCode"] == 0:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}"
-                )
-            else:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}",
-                    severity="error",
-                )
-    elif id == "control-w":
-        response = sender.send_burst(
-            cmd_input="TEST",
-            delay_sec=2,
-            prep_led_sec=1,
-            target_ids=[int(dancer.split("_")[0]) + 1 for dancer in selected_dancers],
-            data=[255, 255, 255],
-            report=not auto
-            # retries=3,
-        )
-        if auto == False:
+        case "control-d":
+            api.send(
+                {
+                    "topic": "dark",
+                    "payload": {
+                        "dancers": selected_dancers,
+                    },
+                }
+            )
+            screen_ref.notify("Dark")
+        case "control-w":
+            api.send(
+                {
+                    "topic": "white",
+                    "payload": {
+                        "dancers": selected_dancers,
+                    },
+                }
+            )
             screen_ref.notify("White")
-            if response["statusCode"] == 0:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}"
-                )
-            else:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}",
-                    severity="error",
-                )
-    elif id == "control-send-color":
-        response = sender.send_burst(
-            cmd_input="TEST",
-            delay_sec=2,
-            prep_led_sec=1,
-            target_ids=[int(dancer.split("_")[0]) + 1 for dancer in selected_dancers],
-            data=[
-                int(screen_vars.color_code[1:3], 16),
-                int(screen_vars.color_code[3:5], 16),
-                int(screen_vars.color_code[5:7], 16),
-            ],
-            report=not auto
-            # retries=3,
-        )
-        if auto == False:
+        case "control-send-color":
+            api.send(
+                {
+                    "topic": "color",
+                    "payload": {
+                        "dancers": selected_dancers,
+                        "colorCode": screen_vars.color_code,
+                    },
+                }
+            )
             screen_ref.notify(f"Color: {screen_vars.color_code}")
-            if response["statusCode"] == 0:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}"
-                )
-            else:
-                screen_ref.notify(
-                    f"BTSender Response: {str(response['payload']['message'])}",
-                    severity="error",
-                )
-    elif id == "control-send-command":
-        api.send(
-            {
-                "topic": "webShell",
-                "payload": {
-                    "dancers": selected_dancers,
-                    "command": screen_vars.command,
-                },
-            }
-        )
-        if auto == False:
-            screen_ref.notify(f"Command: {screen_vars.command} (abandoned)")
-    elif id == "control-connect-serial":
-        if auto == False:
-            screen_ref.notify("Connect")
-    elif id == "control-load-music":
-        MUSIC_FILE_PATH = screen_vars.music
-        try:
-            file_wav = wave.open(MUSIC_FILE_PATH)
-            frequency = file_wav.getframerate()
-            pygame.mixer.pre_init(frequency=frequency, size=-16, channels=2)
-            pygame.init()
-            pygame.mixer.init(frequency=frequency, size=-16, channels=2)
-            # print(pygame.mixer.get_init())
-            pygame.mixer.music.load(MUSIC_FILE_PATH)
-            if auto == False:
-                screen_ref.notify("Music loaded")
-        except:
-            if auto == False:
-                screen_ref.notify("Failed to load the music!", severity="error")
-    elif id == "control-danger-close-gpio":
-        api.send(
-            {
-                "topic": "close",
-                "payload": {
-                    "dancers": selected_dancers,
-                },
-            }
-        )
-        if auto == False:
+        case "control-send-command":
+            api.send(
+                {
+                    "topic": "webShell",
+                    "payload": {
+                        "dancers": selected_dancers,
+                        "command": screen_vars.command,
+                    },
+                }
+            )
+            screen_ref.notify(f"Command: {screen_vars.command}")
+        case "control-danger-close-gpio":
+            api.send(
+                {
+                    "topic": "close",
+                    "payload": {
+                        "dancers": selected_dancers,
+                    },
+                }
+            )
             screen_ref.notify("Close GPIO")
-    elif id == "control-danger-reboot":
-        api.send(
-            {
-                "topic": "reboot",
-                "payload": {
-                    "dancers": selected_dancers,
-                },
-            }
-        )
-        if auto == False:
+        case "control-danger-reboot":
+            api.send(
+                {
+                    "topic": "reboot",
+                    "payload": {
+                        "dancers": selected_dancers,
+                    },
+                }
+            )
             screen_ref.notify("Reboot")
-    elif id == "control-danger-forced-restart":
-        api.send(
-            {
-                "topic": "webShell",
-                "payload": {
-                    "dancers": selected_dancers,
-                    "command": "sudo systemctl restart player.service",
-                },
-            }
-        )
-        if auto == False:
+        case "control-danger-forced-restart":
+            api.send(
+                {
+                    "topic": "webShell",
+                    "payload": {
+                        "dancers": selected_dancers,
+                        "command": "sudo systemctl restart player.service",
+                    },
+                }
+            )
             screen_ref.notify("Forced Restart")
-    elif id == "control-seek":
-        now = time.time_ns() // 1000000 + 4000
-        if time_stamp is None or now < time_stamp:
-            if auto == False:
-                screen_ref.notify(f"Invalid timestamp", severity="error")
-            return
-        try:
-            screen_ref.notify(f"Seek will play at {(now-time_stamp)/1000} s")
-            reviver = threading.Timer(
-                3,
-                revive,
-                args=[
-                    screen_ref,
-                    sender,
-                    [int(dancer.split("_")[0]) + 1 for dancer in selected_dancers],
-                    auto,
-                ],
-            )
-            reviver.start()
-            response = sender.send_burst(
-                cmd_input="SEEK",
-                delay_sec=2.0,
-                prep_led_sec=0.0,
-                target_time_sec=(now - time_stamp) / 1000,
-                target_ids=[
-                    int(dancer.split("_")[0]) + 1 for dancer in selected_dancers
-                ],
-                data=[0, 0, 0],
-                report=not auto
-                # retries=3,
-            )
-        except:
-            if auto == False:
-                screen_ref.notify(f"Seek failed", severity="error")
-    elif id == "control-auto-pilot":
-        pass
-    else:
-        if auto == False:
+        case _:
             screen_ref.notify(f"Unknown button {id}")

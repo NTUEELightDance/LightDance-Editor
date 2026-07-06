@@ -62,11 +62,7 @@ VerticalScroll {
 }
 
 #command-input {
-  width: 30;
-}
-
-#command-music {
-  width: 30;
+  width: 40;
 }
 
 #starttime-input {
