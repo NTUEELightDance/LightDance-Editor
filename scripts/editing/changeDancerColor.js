@@ -1,37 +1,117 @@
+/*
+ * This script updates dancer colors across all frames by replacing old color names
+ * with new ones based on dancer groups and part indices.
+ * 
+ * To run this script, use the command:
+ * `node scripts/editing/changeDancerColor.test.js`
+ * 
+ * The updated data will be saved to `scripts/editing/updatedColor.json`.
+ */
 
-
-
-const data = require("../../../LightTableBackup/2025.03.19.json");
 const fs = require('fs');
 const path = require('path');
 
-for (const [key, controlData] of Object.entries(data.control)) {
-    for (let part_id = 0; part_id < 31; part_id++) {
-        if (controlData.status[0][part_id][0] === "bad_blue" || controlData.status[0][part_id][0] === "bad_green" || controlData.status[0][part_id][0] === "bad_orange_light_p" || controlData.status[0][part_id][0] === "orange_dark_p") {
-            data.control[key].status[0][part_id][0] = "bad_orange_crayola";
+const COLOR_MAPPINGS = [
+    {
+        name: "Dancer 0 color fix",
+        dancerRange: [0, 1],
+        partRange: [0, 31],
+        colorMap: {
+            "bad_blue": "bad_orange_crayola",
+            "bad_green": "bad_orange_crayola",
+            "bad_orange_light_p": "bad_orange_crayola",
+            "orange_dark_p": "bad_orange_crayola",
+        },
+    },
+    {
+        name: "Dancer 1-4 color fix",
+        dancerRange: [1, 5],
+        partRange: [0, 39],
+        colorMap: {
+            "bad_blue": "bad_orange_crayola",
+            "bad_green": "bad_orange_crayola",
+            "bad_orange_light_p": "bad_orange_crayola",
+            "orange_dark_p": "bad_orange_crayola",
+            "bad_blur_blue": "bad_red",
+        },
+        specialRules: [
+            {
+                condition: (dancer_id, part_id) => part_id === 35,
+                originalColor: "bad_orange_crayola",
+                newColor: "bad_red",
+            },
+        ],
+    },
+    {
+        name: "Dancer 5-7 color fix",
+        dancerRange: [5, 8],
+        partRange: [0, 36],
+        colorMap: {
+            "pink": "good_Purple",
+        },
+    },
+];
+
+const applyColorMappings = (data) => {
+    for (const [frameKey, controlData] of Object.entries(data.control)) {
+        // console.log(`Processing frame key ${frameKey}...`);
+        for (const mapping of COLOR_MAPPINGS) {
+            const [dancerStart, dancerEnd] = mapping.dancerRange;
+            const [partStart, partEnd] = mapping.partRange;
+
+            for (let dancer_id = dancerStart; dancer_id < dancerEnd; dancer_id++) {
+                if (!controlData.status[dancer_id]) continue;
+
+                for (let part_id = partStart; part_id < partEnd; part_id++) {
+                    if (!controlData.status[dancer_id][part_id]) continue;
+
+                    const currentColor = controlData.status[dancer_id][part_id][0];
+
+                    // Check special rules FIRST (before regular mappings)
+                    let colorChanged = false;
+                    if (mapping.specialRules) {
+                        for (const rule of mapping.specialRules) {
+                            if (
+                                rule.condition(dancer_id, part_id) &&
+                                currentColor === rule.originalColor
+                            ) {
+                                controlData.status[dancer_id][part_id][0] = rule.newColor;
+                                colorChanged = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Apply regular color mappings only if no special rule was applied
+                    if (!colorChanged && currentColor in mapping.colorMap) {
+                        controlData.status[dancer_id][part_id][0] = mapping.colorMap[currentColor];
+                    }
+                }
+            }
         }
     }
-    for (let dancer_id = 1; dancer_id < 5; dancer_id++) {
-        for (let part_id = 0; part_id < 39; part_id++) {
-            if (controlData.status[dancer_id][part_id][0] === "bad_blue" || controlData.status[dancer_id][part_id][0] === "bad_green" || controlData.status[dancer_id][part_id][0] === "bad_orange_light_p" || controlData.status[dancer_id][part_id][0] === "orange_dark_p") {
-                data.control[key].status[dancer_id][part_id][0] = "bad_orange_crayola";
-            }
-            if (controlData.status[dancer_id][part_id][0] === "bad_blur_blue") {
-                data.control[key].status[dancer_id][part_id][0] = "bad_red";
-            }
-            if (controlData.status[dancer_id][35][0] === "bad_orange_crayola") {
-                data.control[key].status[dancer_id][35][0] = "bad_red";
-            }
+};
+
+// Main execution
+if (require.main === module) {
+    try {
+        const inputPath = path.join(__dirname, "../../../LightTableBackup/2025.03.19.json");
+        
+        if (!fs.existsSync(inputPath)) {
+            throw new Error(`Input file not found: ${inputPath}`);
         }
-    }
-    for (let dancer_id = 5; dancer_id < 8; dancer_id++) {
-        for (let part_id = 0; part_id < 36; part_id++) {
-            if (controlData.status[dancer_id][part_id][0] === "pink") {
-                data.control[key].status[dancer_id][part_id][0] = "good_Purple";
-            }
-        }
+
+        const data = JSON.parse(fs.readFileSync(inputPath, "utf-8"));
+
+        applyColorMappings(data);
+
+        const outputPath = path.join(__dirname, "./updatedColor.json");
+        fs.writeFileSync(outputPath, JSON.stringify(data, null, 2));
+        console.log(`✓ Updated data saved to ${outputPath}`);
+    } catch (error) {
+        console.error("Error:", error.message);
+        process.exit(1);
     }
 }
 
-fs.writeFileSync(path.join(__dirname, "./updatedColor.json"), JSON.stringify(data, null, 2));
-console.log("Updated data has been saved to ./updatedColor.json");
+module.exports = { applyColorMappings };
