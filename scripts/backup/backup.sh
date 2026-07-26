@@ -1,6 +1,6 @@
 # You can setup crontab to run this script periodically
 #      1. crontab -e
-#      2. Add a line like this: 0 * * * * bash ~/prodution/LightDance-Editor/scripts/backup.sh
+#      2. Add a line like this: 0 * * * * bash ~/production/LightDance-Editor/scripts/backup/backup.sh
 #      3. Save and exit
 
 # setup nvm for using pnpm

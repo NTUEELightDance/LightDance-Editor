@@ -140,4 +140,4 @@ if __name__ == "__main__":
     newEmptyDataPath = "./jsons/exportData.json"
     oriLightTablePath = "./jsons/exportData0711_formatted.json"
     updatedLightTablePath = "./jsons/exportData0712_updated.json"
-    add_models_to_existing_lighttable(newEmptyDataPath, oriLightTablePath, updatedLightTablePath)
+    add_dancers_to_existing_lighttable(newEmptyDataPath, oriLightTablePath, updatedLightTablePath)
