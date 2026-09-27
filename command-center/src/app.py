@@ -33,7 +33,7 @@ class LightDanceApp(App):
         self.switch_mode(mode="control")
         self.theme = "nord"
         api.set_app_ref(self.app)  # type: ignore
-        Thread(target=api.connect, daemon=True).start()
+        Thread(target=api.get_dancers, daemon=True).start()
         Thread(target=api.get_pin_map, daemon=True).start()
 
 

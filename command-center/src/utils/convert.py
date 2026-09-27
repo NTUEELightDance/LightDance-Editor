@@ -1,3 +1,4 @@
+from ..config import DANCER_LIST, MODEL_PIN_MAP_TABLE
 from ..types import (
     DancerInfo,
     DancerItem,
@@ -68,5 +69,47 @@ def update_dancer_status_from_board_info(
                     response="",
                 )
                 for name, item in parsed_dancer_payload.items()
+            }
+        )
+
+
+def update_dancer_status(prev_status: DancerStatus) -> DancerStatus:
+    if prev_status:
+        return DancerStatus(
+            {
+                dancer: DancerItem(
+                    selected=item.selected,
+                    name=dancer,
+                    hostname=item.hostname,
+                    interface=item.interface,
+                    ethernet_info=item.ethernet_info,
+                    wifi_info=item.wifi_info,
+                    response=item.response,
+                )
+                for dancer, item in prev_status.items()
+            }
+        )
+    else:
+        return DancerStatus(
+            {
+                dancer: DancerItem(
+                    selected=False,
+                    name=dancer,
+                    hostname="",
+                    interface="BLE",
+                    ethernet_info=DancerInfo(
+                        False,
+                        "",
+                        "",
+                    ),
+                    wifi_info=DancerInfo(
+                        False,
+                        "",
+                        "",
+                    ),
+                    response="",
+                )
+                for dancer, pin_type in DANCER_LIST
+                if pin_type != "none"
             }
         )

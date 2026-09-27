@@ -23,6 +23,7 @@ class LightDanceAppType(App[object]):
 class ControlScreenParamsType:
     color_code: str
     command: str
+    music: str
     delay: int
     start_time: int
 
