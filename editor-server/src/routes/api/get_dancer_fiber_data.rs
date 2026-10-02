@@ -140,7 +140,7 @@ pub async fn get_dancer_fiber_data(
     })?
     .id;
 
-    let mut of_parts = Vec::from_iter(of_parts.into_iter());
+    let mut of_parts = Vec::from_iter(of_parts);
     of_parts.sort_by_key(|part| part.1);
 
     let of_data = sqlx::query!(
