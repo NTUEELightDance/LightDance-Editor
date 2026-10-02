@@ -177,7 +177,7 @@ pub async fn get_dancer_led_data(
     })?
     .id;
 
-    let mut led_parts = Vec::from_iter(led_parts.into_iter());
+    let mut led_parts = Vec::from_iter(led_parts);
     led_parts.sort_by_key(|part| part.1.id);
 
     let led_parts_ids: HashMap<String, i32> = HashMap::from_iter(
