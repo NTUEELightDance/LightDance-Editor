@@ -33,9 +33,9 @@ pub async fn control_dat(
         led_parts,
     } = query.0;
 
-    let mut of_parts = Vec::from_iter(of_parts.into_iter());
+    let mut of_parts = Vec::from_iter(of_parts);
     of_parts.sort_unstable_by_key(|part| part.1);
-    let mut led_parts = Vec::from_iter(led_parts.into_iter());
+    let mut led_parts = Vec::from_iter(led_parts);
     led_parts.sort_unstable_by_key(|part| part.1.id);
 
     // TODO: Find better way (without using HashSet)
