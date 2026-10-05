@@ -1,20 +1,51 @@
-const fs = require('fs');
-const path = require('path');
+/*
+ * This script updates FIBER alpha (opacity) values in the database.
+ * It changes FIBER parts with alpha value 200 to 227 for the first 5 dancers.
+ */
 
-const data = require("../../../LightTableBackup/2025.03.24.json");
+const { PrismaClient } = require("@prisma/client");
 
-for (const [_, controlData] of Object.entries(data.control)) {
-    let status = controlData.status;
-    for (let j = 0; j < 5; j++) {
-        let parts = data.dancer[j].parts;
-        for (let k = 0; k < parts.length; k++) {
-            if (parts[k].type === "FIBER" && controlData.status[j][k][1] == 200) {
-                controlData.status[j][k][1] = 227;
-            }
-        }
+const prisma = new PrismaClient();
+
+// Configuration
+const DANCER_COUNT = 5;
+const TARGET_PART_TYPE = "FIBER";
+const OLD_ALPHA = 200;
+const NEW_ALPHA = 227;
+
+const updateFiberAlphaInDatabase = async () => {
+    try {
+        // Update all ControlData records where:
+        // - The part type is FIBER
+        // - The alpha value is OLD_ALPHA
+        // - The dancer_id is within the first DANCER_COUNT dancers
+        const result = await prisma.controlData.updateMany({
+            where: {
+                alpha: OLD_ALPHA,
+                part: {
+                    type: TARGET_PART_TYPE,
+                },
+                dancer_id: {
+                    in: Array.from({ length: DANCER_COUNT }, (_, i) => i + 1), // [1, 2, 3, 4, 5]
+                },
+            },
+            data: {
+                alpha: NEW_ALPHA,
+            },
+        });
+
+        console.log(`✓ Updated ${result.count} records in database`);
+    } catch (error) {
+        console.error("Error:", error.message);
+        process.exit(1);
+    } finally {
+        await prisma.$disconnect();
     }
+};
+
+// Main execution
+if (require.main === module) {
+    updateFiberAlphaInDatabase();
 }
 
-fs.writeFileSync(path.join(__dirname, "./fiber.json"), JSON.stringify(data, null, 0));
-
-console.log("saved to ./fiber.json");
+module.exports = { updateFiberAlphaInDatabase };
