@@ -581,7 +581,7 @@ pub async fn frame_dat(
                     .unwrap_or(&&vec![[0, 0, 0, 0]; led_part.len as usize])
                     .iter()
                     .map(|status| {
-                        let combined_alpha = status[3] * control_alpha / 255;
+                        let combined_alpha = status[3].saturating_mul(control_alpha) / 255;
                         alpha(&[status[0], status[1], status[2], combined_alpha])
                     })
                     .collect_vec()
