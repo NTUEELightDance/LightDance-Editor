@@ -1,7 +1,7 @@
 {
   "Beat": "5ec356af98382797ef768d84fe17a16934284511c5221b64c27e452c701d0f48",
-  "Music": "19806d7b1a921485297b86ad699b329dfb46fa2e605f44fb0b13f98c8a42bb9c",
-  "Waveform": "6ac855190e1a3d2dc399fe72d2bb910c28cfb772ff80d1239ce9c0dcdb1a3176",
+  "Music": "a2c711dd21c29831f57a9d618fd5c3cd1e9df6d9050ee1323212f7f9b3443c47",
+  "Waveform": "1d9ac7f5998fb9a861095152a9b9b94555a60db3f395810e95a64b5fd72f62a1",
   "DancerMap": {
     "0_joshua": {
       "url": "743bb6f8ced1980289a71c9dbd925f89e6630356a7a54a6bd828c799da2e1556"
@@ -14,6 +14,12 @@
     },
     "3_eric": {
       "url": "5ec591eafc0e30f3973e9b3b59346161936a92a481374ca3b05af57450dfd76e"
+    },
+    "4_staff1": {
+      "url": "648903d423b88998639a3415bfd198b91ccb3551920608f1cbee511774bbc524"
+    },
+    "5_staff2": {
+      "url": "648903d423b88998639a3415bfd198b91ccb3551920608f1cbee511774bbc524"
     }
   }
 }

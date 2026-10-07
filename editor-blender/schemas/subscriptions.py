@@ -251,7 +251,7 @@ SUB_EFFECT_LIST = gql(
 
 @dataclass
 class SubLEDRecordDataBulbData(JSONWizard):
-    LEDs: list[tuple[int, int]]
+    leds: list[tuple[int, int]]
 
 
 @dataclass
