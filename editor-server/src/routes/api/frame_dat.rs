@@ -327,6 +327,7 @@ pub async fn frame_dat(
     // ((frame_id, part_id), color[]
     // None means no-change
     let mut led_data: HashMap<(i32, i32), &Vec<LEDStatus>> = HashMap::new();
+    let mut led_control_alpha: HashMap<(i32, i32), i32> = HashMap::new();
 
     let led_effect_data = sqlx::query!(
         r#"
@@ -335,6 +336,7 @@ pub async fn frame_dat(
                 ControlData.part_id,
                 ControlData.frame_id,
                 ControlData.effect_id,
+                COALESCE(ControlData.alpha, 255) AS "control_alpha: i32",
                 Part.name as "part_name"
             FROM Dancer
             INNER JOIN Model
@@ -362,6 +364,7 @@ pub async fn frame_dat(
     let mut no_change_parts: HashSet<(i32, i32)> = HashSet::new();
 
     for data in led_effect_data {
+        led_control_alpha.insert((data.frame_id, data.part_id), data.control_alpha);
         if let Some(id) = &data.effect_id {
             let effect_status = &effects_map
                 .get(id)
@@ -387,6 +390,7 @@ pub async fn frame_dat(
                 Part.id as "part_id",
                 Part.name as "part_name",
                 Part.length,
+                COALESCE(ControlData.alpha, 255) AS "control_alpha: i32",
                 LEDBulb.position,
                 LEDBulb.color_id,
                 LEDBulb.alpha
@@ -421,6 +425,7 @@ pub async fn frame_dat(
         let part_id = data[0].part_id;
         // TODO: error handling here
         let length = data[0].length.unwrap();
+        led_control_alpha.insert((frame_id, part_id), data[0].control_alpha);
 
         let bulb_status: Vec<LEDStatus> = Vec::from_iter(data.into_iter().map(|bulb| {
             // let color = color_map.get(&bulb.color_id).unwrap_or(&DEFAULT_COLOR);
@@ -567,11 +572,18 @@ pub async fn frame_dat(
                     None => vec![[0, 0, 0]; led_part.len as usize],
                 }
             } else {
+                let control_alpha = led_control_alpha
+                    .get(&(frame_id, led_part.id))
+                    .copied()
+                    .unwrap_or(255);
                 led_data
                     .get(&(frame_id, led_part.id))
                     .unwrap_or(&&vec![[0, 0, 0, 0]; led_part.len as usize])
                     .iter()
-                    .map(alpha)
+                    .map(|status| {
+                        let combined_alpha = status[3].saturating_mul(control_alpha) / 255;
+                        alpha(&[status[0], status[1], status[2], combined_alpha])
+                    })
                     .collect_vec()
             };
 
