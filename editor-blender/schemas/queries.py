@@ -38,7 +38,7 @@ LEDEffect
 
 @dataclass
 class QueryLEDEffectFramePayload(JSONWizard):
-    LEDs: list[tuple[ColorID, int]]
+    leds: list[tuple[ColorID, int]]
     start: int
     fade: bool
 
